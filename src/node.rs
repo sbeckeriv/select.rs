@@ -33,30 +33,16 @@ pub struct Raw {
 pub struct Node<'a> {
     document: &'a Document,
     index: usize,
-    pub deleted: bool,
 }
 
 impl<'a> Node<'a> {
     /// Create a Node referring to the `index`th Node of a document.
     pub fn new(document: &'a Document, index: usize) -> Option<Node<'a>> {
         if index < document.nodes.len() {
-            Some(Node {
-                document,
-                index,
-                deleted: false,
-            })
+            Some(Node { document, index })
         } else {
             None
         }
-    }
-
-    // soft delete
-    pub fn delete(&mut self) {
-        self.deleted = true;
-    }
-    // unremove it
-    pub fn undelete(&mut self) {
-        self.deleted = false;
     }
 
     /// Get the index of this Node in its Document.
@@ -140,19 +126,15 @@ impl<'a> Node<'a> {
     /// Get the combined textual content of a Node and all of its children.
     pub fn text(&self) -> String {
         let mut string = String::new();
-        if self.deleted {
-            string
-        } else {
-            recur(self, &mut string);
-            return string;
+        recur(self, &mut string);
+        return string;
 
-            fn recur(node: &Node, string: &mut String) {
-                if let Some(text) = node.as_text() {
-                    string.push_str(text);
-                }
-                for child in node.children() {
-                    recur(&child, string)
-                }
+        fn recur(node: &Node, string: &mut String) {
+            if let Some(text) = node.as_text() {
+                string.push_str(text);
+            }
+            for child in node.children() {
+                recur(&child, string)
             }
         }
     }
@@ -189,25 +171,17 @@ impl<'a> Node<'a> {
 
     /// Get the text of a text Node, or None if the node is not text.
     pub fn as_text(&self) -> Option<&'a str> {
-        if self.deleted {
-            Some("")
-        } else {
-            match *self.data() {
-                Data::Text(ref text) => Some(&text),
-                _ => None,
-            }
+        match *self.data() {
+            Data::Text(ref text) => Some(&text),
+            _ => None,
         }
     }
 
     /// Get the text of a comment Node, or None if the node is not a comment.
     pub fn as_comment(&self) -> Option<&'a str> {
-        if self.deleted {
-            Some("")
-        } else {
-            match *self.data() {
-                Data::Comment(ref comment) => Some(&comment),
-                _ => None,
-            }
+        match *self.data() {
+            Data::Comment(ref comment) => Some(&comment),
+            _ => None,
         }
     }
 
