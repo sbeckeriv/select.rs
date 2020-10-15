@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::{fmt, io};
 
 use html5ever::tendril::StrTendril;
@@ -135,6 +136,24 @@ impl<'a> Node<'a> {
             }
             for child in node.children() {
                 recur(&child, string)
+            }
+        }
+    }
+
+    /// Get the combined textual content of a Node and all of its children.
+    pub fn text_ignore(&self, ignore_index: &HashSet<usize>) -> String {
+        let mut string = String::new();
+        recur(self, &mut string, ignore_index);
+        return string;
+
+        fn recur(node: &Node, string: &mut String, ignore_index: &HashSet<usize>) {
+            if ignore_index.get(&node.raw().index).is_none() {
+                if let Some(text) = node.as_text() {
+                    string.push_str(text);
+                }
+                for child in node.children() {
+                    recur(&child, string, ignore_index)
+                }
             }
         }
     }

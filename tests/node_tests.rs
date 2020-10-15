@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
 
-pub use std::collections::HashMap;
+pub use std::collections::{HashMap, HashSet};
 
 extern crate select;
 pub use select::document::Document;
@@ -124,6 +124,19 @@ speculate! {
             assert_eq!(baz.text(), "baz");
             assert_eq!(quux.text(), "");
         }
+
+        test "Node::text_ignore()" {
+            let mut ignore = HashSet::<usize>::new();
+            ignore.insert(foo.raw().index);
+            assert_eq!(html.text_ignore(&ignore), "baz");
+            assert_eq!(head.text_ignore(&ignore), "");
+            assert_eq!(body.text_ignore(&ignore), "baz");
+            assert_eq!(foo.text_ignore(&ignore), "");
+            assert_eq!(bar.text_ignore(&ignore), "baz");
+            assert_eq!(baz.text_ignore(&ignore), "baz");
+            assert_eq!(quux.text_ignore(&ignore), "");
+        }
+
 
         test "Node::find()" {
             {
