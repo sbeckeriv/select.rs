@@ -16,7 +16,7 @@ speculate! {
                                            foo<bar>baz<quux class=another-thing>\
                                            <!--comment-->");
 
-            let html = document.nth(0).unwrap();
+            let mut html = document.nth(0).unwrap();
             let head = document.nth(1).unwrap();
             let body = document.nth(2).unwrap();
             let foo = document.nth(3).unwrap();
@@ -117,6 +117,8 @@ speculate! {
 
         test "Node::text()" {
             assert_eq!(html.text(), "foobaz");
+            html.delete();
+            assert_eq!(html.text(), "");
             assert_eq!(head.text(), "");
             assert_eq!(body.text(), "foobaz");
             assert_eq!(foo.text(), "foo");
